@@ -14,7 +14,7 @@
       return Nothing;
    }
    Nothing.isNothing = true;
-   Nothing.log = Nothing.p = Nothing.m = Nothing.f = Nothing;
+   Nothing.log = Nothing._ = Nothing.p = Nothing.m = Nothing.f = Nothing;
 
    function Failure(message){
       return FailureFactory(Failure, message);
@@ -27,7 +27,7 @@
          console.log(data);
          return fail;
       };
-      fail.m = fail.f = fail.p = fail;
+      fail._ = fail.m = fail.f = fail.p = fail;
       return fail;
    }
    
@@ -35,7 +35,12 @@
       return ContainerFactory(Container, data);
    }
    function ContainerFactory(me, data){
-      function execute(action){
+      
+      var action, execute = function(){
+         return action.apply(execute, arguments);
+      }
+      
+      execute._ = function(action){
          if(arguments.length === 0){
             return data;
          }
@@ -46,30 +51,34 @@
          } else {
             return Nothing();
          }
-      }
+      };
+      action = execute._;
       execute.m = function(method){
+         action = execute.m;
          var args = Array.prototype.splice.call(arguments,1);
          var result = data[method].apply(data, args);
          return result === data ? execute : me(result);
       };
       execute.p = function(prop){
+         action = execute.p;
          return data[prop] ? me(data[prop]) : Nothing();
       };
       execute.f = function(fn){
+         action = execute.f;
          var result = fn(data, execute);
          return result === data ? execute : me(result);         
       };
       execute.check = function(){
          var args = arguments;
-         return CheckFactory(me, data)(function(){ return execute.apply(execute, args)()});
+         return CheckFactory(me, data)(function(){ return execute._.apply(execute, args)()});
       };
       execute.is = function(){
          var args = arguments;
-         return CheckFactory(me, data)(function(){ return execute.apply(execute, arguments)()}).is();
+         return CheckFactory(me, data)(function(){ return execute._.apply(execute, arguments)()}).is();
       };
       execute.not = function(){
          var args = arguments;
-         return CheckFactory(me, data)(function(){ return execute.apply(execute, arguments)()}).not();
+         return CheckFactory(me, data)(function(){ return execute._.apply(execute, arguments)()}).not();
       };
       execute.log = function(title){
          return execute;

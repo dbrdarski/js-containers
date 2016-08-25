@@ -15,20 +15,21 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
     <script src="containers.js"></script>
     <script>
+    
     (function($, _){
 
-      function log(msg, tag){
+      function echo(msg, tag){
         tag = tag || 'p';
         $('#log').append('<'+tag+'>'+msg+'</'+tag+'>');
       }
 
       var obj = {
         alpha : function(str){
-          log(str || 'This is printed by an object method.');
+          echo(str || 'This is printed by an object method.');
           return this;
         },
         beta  : function(str){
-          log(str || 'I love you.')
+          echo(str || 'I love you.')
           return this;
         },
         one : {
@@ -42,25 +43,25 @@
 
       var o = _.Container(obj);
 
-        var a =o.m('alpha')
-        .m('beta')
-        .check(()=>('5')) // <= try '4' instead 
+      o.m('alpha')
+        .check(()=>'5') // <= try '4' instead 
           .assert('5')
           .onFailure(()=>_.Failure("--- This is a faliure ---"))
-          .onSuccess((x,y)=>log('+++ Great Success +++') || _.Container(obj))
+          .onSuccess((x,y)=>echo('+++ Great Success +++') || _.Container(obj))
           ()
-        .m('alpha', 'Do you really love me?')
-        .m('beta', "I do.")
+        .m('alpha', 'This is an argument of the method alpha.')
         .log()
       ;
 
       o.p('one')('two')('three')('four')
-       .log("===")
-       .f(function(val){
-        log("=====++=====")
-        log(val)
-        log("=====++=====")
-       });
+        .log("===")
+        .f(function(val){
+          echo("=====++=====")
+          echo(val)
+          echo("=====++=====")
+        })
+      ;
+
       })(jQuery, C)
     </script>
   </body>
